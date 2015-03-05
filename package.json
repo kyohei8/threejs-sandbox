@@ -1,0 +1,30 @@
+{
+  "name": "threejs-sandbox",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --progress --colors --port 8090"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "three": "^0.70.0"
+  },
+  "devDependencies": {
+    "autoprefixer-loader": "^1.2.0",
+    "babel": "^4.6.6",
+    "babel-core": "^4.6.6",
+    "babel-loader": "^4.0.0",
+    "css-loader": "^0.9.1",
+    "file-loader": "^0.8.1",
+    "glob": "^4.4.2",
+    "nib": "^1.1.0",
+    "style-loader": "^0.8.3",
+    "stylus": "^0.49.3",
+    "stylus-loader": "^0.6.0",
+    "url-loader": "^0.5.5",
+    "webpack": "^1.7.2",
+    "webpack-dev-server": "^1.7.0"
+  }
+}
