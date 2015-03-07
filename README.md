@@ -10,7 +10,7 @@ $ npm run start
 ```
 open `localhost:8090`
 
-## add template 
+## generate template 
 
 ```
 $ npm run gen [dir Name]
