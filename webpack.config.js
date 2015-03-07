@@ -11,7 +11,8 @@ module.exports = {
   output: {
     path    : __dirname + '/dist',
     publicPath: 'http://localhost:8090/assets', //webpack-dev-server用のアウトプットディレクトリ
-    filename: '[name].bundle.js'
+    filename: '[name].bundle.js',
+    sourceMapFilename: '[file].map'
   },
   debug : false,
   cache : true,
@@ -19,6 +20,7 @@ module.exports = {
     colors : true,
     reasons: true
   },
+  devtool: 'source-map',
   module: {
     loaders: [{
       test: /\.js$/,
