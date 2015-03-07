@@ -9,3 +9,9 @@ $ npm i
 $ npm run start
 ```
 open `localhost:8090`
+
+## add template 
+
+```
+$ npm run gen [dir Name]
+```

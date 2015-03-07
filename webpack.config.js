@@ -6,7 +6,6 @@ var entries = {};
 glob.sync('./examples/**/*.js').forEach(function(file, i){
   entries['app' + (i + 1)] = file;
 });
-console.log(d);
 module.exports = {
   entry : entries,
   output: {
