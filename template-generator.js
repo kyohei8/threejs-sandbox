@@ -6,6 +6,7 @@ if(!dir){
   console.error('!!!ERROR!!!: invalid arguments');
   return;
 }
+let num = dir.match(/ex(\d+)/)[1];
 let dirPath = `${BASE_DIR}/${dir}`;
 let jsTemplate =
   `'use strict';
@@ -84,7 +85,7 @@ let htmlTemplate =
 <div id="container"></div>
 
 <script src="/webpack-dev-server.js"></script>
-<script type="text/javascript" src="/assets/app(add num).bundle.js"></script>
+<script type="text/javascript" src="/assets/app${num}.bundle.js"></script>
 </body>
 </html>`;
 
