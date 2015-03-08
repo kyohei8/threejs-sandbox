@@ -27,7 +27,10 @@ let init = function(){
   camera.position.z = 1750;
   controls = new OrbitControls( camera, container );
 
+  // -----------------------------------------------------------------
   // insert your creativity :D
+  // -----------------------------------------------------------------
+
 
   renderer = new THREE.WebGLRenderer( { antialias: true } );
   renderer.setPixelRatio( window.devicePixelRatio );

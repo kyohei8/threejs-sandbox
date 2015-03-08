@@ -3,7 +3,7 @@ var glob = require("glob");
 
 var entries = {};
 //すべてのjsファイル
-glob.sync('./examples/**/*.js').forEach(function(file, i){
+glob.sync('./examples/ex**/*.js').forEach(function(file, i){
   entries['app' + (i + 1)] = file;
 });
 module.exports = {
