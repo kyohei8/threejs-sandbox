@@ -38,12 +38,12 @@ let init = function(){
     colorStart: new THREE.Color('white'),
     colorEnd: new THREE.Color('red'),
     sizeStart: 4,
-    sizeEnd: 20,
+    sizeEnd: 8,
     opacityStart: 0,
     opacityMiddle: .7,
     opacityEnd: 0,
 
-    particleCount: 200
+    particleCount: 800
   };
 
   var colors = ["red", "orange", "yellow", "green", "blue", "violet", "pink", "magenta", "cyan", "steelblue", "seagreen"];
@@ -59,7 +59,7 @@ let init = function(){
   // -----------------------------------------------------------------
 
   renderer = new THREE.WebGLRenderer( { antialias: true } );
-  renderer.setPixelRatio( window.devicePixelRatio );
+  renderer.setPixelRatio(1);//window.devicePixelRatio ); これだとRetinaで重い・・
   renderer.setSize( window.innerWidth, window.innerHeight );
   container.appendChild( renderer.domElement );
 
@@ -107,7 +107,7 @@ let animate = function(){
 let render = function(){
   let zoom = 10;
   // mouseの値は 0〜1の間を遷移
-  camera.position.x = Math.sin( Math.PI * (mouse[0] - .5)) * zoom;
+  camera.position.x = -Math.sin( Math.PI * (mouse[0] - .5)) * zoom;
   camera.position.y = Math.sin(.25 * Math.PI * (mouse[1] - .5)) * zoom;
   //camera.position.z = Math.cos(.5 * Math.PI * (mouse[0] - .5)) * zoom;
   camera.lookAt(scene.position);
