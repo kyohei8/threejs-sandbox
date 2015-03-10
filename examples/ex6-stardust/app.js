@@ -29,23 +29,21 @@ let init = function(){
     colorize: 1,
     blending: THREE.AdditiveBlending
   });
-
   let emitterSettings = {
     positionSpread: new THREE.Vector3(100, 100, 100),
 
     acceleration: new THREE.Vector3(0, 0, 2),
 
     velocity: new THREE.Vector3(0, 0, 1),
-
     colorStart: new THREE.Color('white'),
     colorEnd: new THREE.Color('red'),
-    sizeStart: 1,
-    sizeEnd: 2,
+    sizeStart: 4,
+    sizeEnd: 20,
     opacityStart: 0,
     opacityMiddle: .7,
     opacityEnd: 0,
 
-    particleCount: 800
+    particleCount: 200
   };
 
   var colors = ["red", "orange", "yellow", "green", "blue", "violet", "pink", "magenta", "cyan", "steelblue", "seagreen"];
@@ -97,7 +95,7 @@ let animate = function(){
   let delta = clock.getDelta();
 
   particleGroup.tick(delta);
-  if ( ct % 32 == 0 )
+  if ( ct % 32 === 0 )
     particleGroup.triggerPoolEmitter( 1, new THREE.Vector3() );
 
   requestAnimationFrame(animate);
@@ -109,7 +107,7 @@ let animate = function(){
 let render = function(){
   let zoom = 10;
   // mouseの値は 0〜1の間を遷移
-  camera.position.x = Math.sin( 1 * Math.PI * (mouse[0] - .5)) * zoom;
+  camera.position.x = Math.sin( Math.PI * (mouse[0] - .5)) * zoom;
   camera.position.y = Math.sin(.25 * Math.PI * (mouse[1] - .5)) * zoom;
   //camera.position.z = Math.cos(.5 * Math.PI * (mouse[0] - .5)) * zoom;
   camera.lookAt(scene.position);
