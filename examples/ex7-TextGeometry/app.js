@@ -8,13 +8,13 @@ let container,stats;
 let camera, controls, scene, renderer;
 let attributes, uniforms, geometry;
 
-const text = "RESAS",
-  height = 15,
+const text = "DEAD",
+  height = 10,
   size = 50,
-  curveSegments = 10,
+  curveSegments = 20,
   steps = 20,
   bevelThickness = 0,
-  hover = 30,
+  hover = 0,
   bevelSize = 1.5,
   bevelSegments = 1,//10,
   bevelEnabled = true,
@@ -24,9 +24,9 @@ const text = "RESAS",
 
 let object;
 let material;
-let textGeo,textMesh1,group;
+let textMesh1,group;
 
-
+let pointLight;
 
 let init = function(){
   container = document.getElementById('container');
@@ -35,45 +35,28 @@ let init = function(){
 
   camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 10000 );
   //camera.position.z = 350;
-  camera.position.set( 0, 400, 700 );
+  camera.position.set( 0, 0, 450 );
   controls = new OrbitControls( camera, container );
-
+  var axisHelper = new THREE.AxisHelper( 2 );
+  scene.add( axisHelper );
   // -----------------------------------------------------------------
-  let cameraTarget = new THREE.Vector3( 0, 150, 0 );
+  let cameraTarget = new THREE.Vector3( 0, 0, 0 );
 
-  var dirLight = new THREE.DirectionalLight( 0xffffff, 0.125 );
-  dirLight.position.set( 0, 0, 1 ).normalize();
+  var dirLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+  dirLight.position.set( 0, 10, -100 ).normalize();
   scene.add( dirLight );
-
-  var pointLight = new THREE.PointLight( 0xffffff, 1.5 );
+  //
+  pointLight = new THREE.PointLight( 0xffffff, 1.5 );
   pointLight.position.set( 0, 110, 90 );
   scene.add( pointLight );
 
-  material = new THREE.MeshFaceMaterial([new THREE.MeshPhongMaterial({
-    color  : 0xffffff,
-    shading: THREE.FlatShading
-  }), // front
-    new THREE.MeshPhongMaterial({
-      color  : 0xffffff,
-      shading: THREE.SmoothShading
-    }) // side
-  ]);
 
   group = new THREE.Group();
-  group.position.y = 100;
+  group.position.y = 0;
 
   scene.add( group );
 
   createText();
-
-  var plane = new THREE.Mesh(
-    new THREE.PlaneBufferGeometry( 10000, 10000 ),
-    new THREE.MeshBasicMaterial( { color: 0xffffff, opacity: 0.5, transparent: true } )
-  );
-  plane.position.y = 100;
-  plane.rotation.x = - Math.PI / 2;
-  scene.add( plane );
-
 
   // -----------------------------------------------------------------
 
@@ -93,80 +76,61 @@ let init = function(){
 
 };
 
-let createText = function() {
+let createText = function(material) {
 
-  textGeo = new THREE.TextGeometry( text, {
+  for(let i=0; i < text.length; i++){
+    let char = text[i];
+    let textGeo = new THREE.TextGeometry( char, {
 
-    size: size,
-    height: height,
-    curveSegments: curveSegments,
+      size: size,
+      height: height,
+      curveSegments: curveSegments,
 
-    font: font,
-    weight: weight,
-    style: style,
+      font: font,
+      weight: weight,
+      style: style,
 
-    bevelThickness: bevelThickness,
-    bevelSize: bevelSize,
-    bevelEnabled: bevelEnabled,
+      bevelThickness: bevelThickness,
+      bevelSize: bevelSize,
+      bevelEnabled: bevelEnabled,
 
-    material: 0,
-    extrudeMaterial: 1
+      material: 0,
+      extrudeMaterial: 1
 
-  });
+    });
+    textGeo.computeBoundingBox();
+    textGeo.computeVertexNormals();
+    var centerOffset = -0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
 
-  textGeo.computeBoundingBox();
-  textGeo.computeVertexNormals();
+    // ワイヤーっぽいの
+    let material2 = new THREE.MeshBasicMaterial({
+      color    : Math.random() * 0xffffff,
+      wireframe: true
+    });
 
-  // "fix" side normals by removing z-component of normals for side faces
-  // (this doesn't work well for beveled geometry as then we lose nice curvature around z-axis)
+    let material3 = new THREE.MeshBasicMaterial( { color: 0xffaa00, transparent: true, blending: THREE.AdditiveBlending } )
+    material = new THREE.MeshFaceMaterial([new THREE.MeshPhongMaterial({
+      color  : 0xffffff,
+      shading: THREE.FlatShading
+    }), // front
+      new THREE.MeshPhongMaterial({
+        color  : 0x0ff0ff,
+        shading: THREE.SmoothShading
+      }) // side
+    ]);
 
-  if ( ! bevelEnabled ) {
+    textMesh1 = new THREE.Mesh( textGeo, material3 );
 
-    var triangleAreaHeuristics = 0.1 * ( height * size );
+    textMesh1.position.x = centerOffset + (i * 60);
+    textMesh1.position.y = hover;
+    textMesh1.position.z = 0;
 
-    for ( var i = 0; i < textGeo.faces.length; i ++ ) {
+    textMesh1.rotation.x = 0;
+    textMesh1.rotation.y = Math.PI * 2;
 
-      var face = textGeo.faces[ i ];
+    group.add( textMesh1 );
 
-      if ( face.materialIndex == 1 ) {
-
-        for ( var j = 0; j < face.vertexNormals.length; j ++ ) {
-
-          face.vertexNormals[ j ].z = 0;
-          face.vertexNormals[ j ].normalize();
-
-        }
-
-        var va = textGeo.vertices[ face.a ];
-        var vb = textGeo.vertices[ face.b ];
-        var vc = textGeo.vertices[ face.c ];
-
-        var s = THREE.GeometryUtils.triangleArea( va, vb, vc );
-
-        if ( s > triangleAreaHeuristics ) {
-
-          for ( var j = 0; j < face.vertexNormals.length; j ++ ) {
-
-            face.vertexNormals[ j ].copy( face.normal );
-
-          }
-        }
-      }
-    }
   }
-
-  var centerOffset = -0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
-
-  textMesh1 = new THREE.Mesh( textGeo, material );
-
-  textMesh1.position.x = centerOffset;
-  textMesh1.position.y = hover;
-  textMesh1.position.z = 0;
-
-  textMesh1.rotation.x = 0;
-  textMesh1.rotation.y = Math.PI * 2;
-
-  group.add( textMesh1 );
 
 };
 
@@ -191,7 +155,17 @@ let animate = function(){
 
 let render = function(){
 
-  //group.rotation.y += ( targetRotation - group.rotation.y ) * 0.05;
+  var time = Date.now() * 0.001;
+  var time2 = Date.now() * 0.0025;
+
+  //mesh.rotation.x = time * 0.25;
+  //mesh.rotation.y = time * 0.5;
+  let d = 100000;
+
+  group.rotation.y = Math.sin( Math.PI/ 20 * (time));
+  pointLight.position.x = Math.sin( time2 * 0.7 ) * d;
+  pointLight.position.y = Math.cos( time2 * 0.3 ) * d;
+  //group.rotation.x = time * 0.5;
 
   //camera.lookAt( cameraTarget );
 
