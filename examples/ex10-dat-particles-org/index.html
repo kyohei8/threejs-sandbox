@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <title>ex10-dat-particles</title>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <!--<script src="/node_modules/three/three.min.js"></script>-->
+  <script src="../vendor/three.r55.min.js"></script>
+
+  <script src="../vendor/FBOUtils.js"></script>
+  <script src="../vendor/OrbitControls2.js"></script>
+  <script src="../vendor/fonts/helvetiker_bold.typeface.js"></script>
+
+</head>
+<body style="background-color: #111;">
+<div id="container"></div>
+<script id="texture_vertex_simulation_shader" type="x-shader/x-vertex">
+
+			varying vec2 vUv;
+
+			void main() {
+
+				vUv = vec2(uv.x,uv.y);
+				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+			}
+
+
+</script>
+<script id="texture_fragment_simulation_shader" type="x-shader/x-fragment">
+
+			// simulation
+			varying vec2 vUv;
+
+			uniform sampler2D tPositions;
+			uniform sampler2D origin;
+
+			uniform float timer;
+
+
+			float rand(vec2 co){
+			    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+			}
+
+			void main() {
+
+
+				vec3 pos = texture2D( tPositions, vUv ).xyz;
+
+
+				if ( rand(vUv + timer ) > 0.97 ) {
+
+					pos = texture2D( origin, vUv ).xyz;
+
+
+				} else {
+
+					float x = pos.x + timer;
+					float y = pos.y;
+					float z = pos.z;
+
+					pos.x += sin( y * 7.0 ) * cos( z * 12.0 ) * 0.005;
+					pos.y += sin( x * 8.0 ) * cos( z * 13.0 ) * 0.005;
+					pos.z += sin( x * 9.0 ) * cos( y * 14.0 ) * 0.005;
+
+				}
+
+
+				// Write new position out
+				gl_FragColor = vec4(pos, 1.0);
+
+
+			}
+
+
+
+</script>
+
+<!-- zz85 - end simulations -->
+
+<script id="vs-particles" type="x-shader/x-vertex">
+
+			uniform sampler2D map;
+
+			uniform float width;
+			uniform float height;
+
+			uniform float pointSize;
+
+			varying vec2 vUv;
+			varying vec4 vPosition;
+
+			void main() {
+
+				vUv = position.xy + vec2( 0.5 / width, 0.5 / height );
+
+				vec3 color = texture2D( map, vUv ).rgb * 200.0 - 100.0;
+
+				gl_PointSize = pointSize;
+				gl_Position = projectionMatrix * modelViewMatrix * vec4( color, 1.0 );
+				// gl_Position = projectionMatrix * modelViewMatrix * vec4( position * 200.0, 1.0 );
+
+			}
+
+
+</script>
+
+<script id="fs-particles" type="x-shader/x-fragment">
+
+			uniform sampler2D map;
+
+			varying vec2 vUv;
+			varying vec4 vPosition;
+
+			void main() {
+
+				float depth = smoothstep( 750.0, -500.0, gl_FragCoord.z / gl_FragCoord.w );
+				gl_FragColor = vec4( texture2D( map, vUv ).xyz, depth );
+
+			}
+
+
+</script>
+
+<script id="vs-copy" type="x-shader/x-vertex">
+
+			uniform sampler2D map;
+			varying vec2 vUv;
+
+			void main() {
+
+				vUv = position.xy;
+				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+			}
+
+
+</script>
+
+<script id="fs-copy" type="x-shader/x-fragment">
+
+			uniform sampler2D map;
+			varying vec2 vUv;
+
+			void main() {
+
+				gl_FragColor = texture2D( map, vUv );
+
+			}
+
+
+</script>
+
+<script src="/webpack-dev-server.js"></script>
+<script type="text/javascript" src="/assets/app10.bundle.js"></script>
+</body>
+</html>

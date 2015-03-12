@@ -32,7 +32,7 @@ let init = function(){
   let emitterSettings = {
     positionSpread: new THREE.Vector3(100, 100, 100),
 
-    acceleration: new THREE.Vector3(0, 0, 2),
+    acceleration: new THREE.Vector3(0, 0, 20),
 
     velocity: new THREE.Vector3(0, 0, 1),
     colorStart: new THREE.Color('white'),

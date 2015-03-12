@@ -8,7 +8,7 @@ let container,stats;
 let camera, controls, scene, renderer;
 let attributes, uniforms, geometry;
 
-const text = "DEAD",
+const text = "RESAS",
   height = 10,
   size = 50,
   curveSegments = 20,
@@ -104,7 +104,7 @@ let createText = function(material) {
 
     // ワイヤーっぽいの
     let material2 = new THREE.MeshBasicMaterial({
-      color    : Math.random() * 0xffffff,
+      color    : 0xffffff * Math.random(),
       wireframe: true
     });
 
@@ -119,7 +119,7 @@ let createText = function(material) {
       }) // side
     ]);
 
-    textMesh1 = new THREE.Mesh( textGeo, material3 );
+    textMesh1 = new THREE.Mesh( textGeo, material2 );
 
     textMesh1.position.x = centerOffset + (i * 60);
     textMesh1.position.y = hover;
