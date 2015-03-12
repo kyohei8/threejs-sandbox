@@ -21,7 +21,7 @@ let init = function(){
   // -----------------------------------------------------------------
   // Grid
 
-  var line_material = new THREE.LineBasicMaterial( { color: 0x101010 } ),
+  var line_material = new THREE.LineBasicMaterial( { color: 0x303030 } ),
     xGeometry = new THREE.Geometry(),
     yGeometry = new THREE.Geometry(),
     zGeometry = new THREE.Geometry(),
@@ -63,7 +63,6 @@ let init = function(){
     let z = Math.random() * 500 - 250;
     let geometry = new THREE.SphereGeometry(5, 32, 32);
     let color = `0x${toHex(x) + toHex(y) + toHex(z) }`;
-    console.log(color);
     let material = new THREE.MeshBasicMaterial({color: parseInt(color) });
     let sphere = new THREE.Mesh(geometry, material);
     sphere.position.set(x, y, z);
