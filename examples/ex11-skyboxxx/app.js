@@ -21,12 +21,14 @@ let init = function(){
   camera.target = new THREE.Vector3( 0, 0, 0 );
 
   // -----------------------------------------------------------------
+  let imgFile = location.hash || '#02_Entrance';
+  imgFile = imgFile.slice(1);
+
   var geometry = new THREE.SphereGeometry( 500, 60, 40 );
   geometry.applyMatrix( new THREE.Matrix4().makeScale( -1, 1, 1 ) );
 
   var material = new THREE.MeshBasicMaterial( {
-    map: THREE.ImageUtils.loadTexture( '/examples/ex11-skyboxxx/img/02_Entrance.jpg' )
-    //map: THREE.ImageUtils.loadTexture( '/examples/ex11-skyboxxx/img/07_Hall.jpg' )
+    map: THREE.ImageUtils.loadTexture( `/examples/ex11-skyboxxx/img/${imgFile}.jpg` )
   } );
   mesh = new THREE.Mesh( geometry, material );
 
