@@ -10,7 +10,7 @@ module.exports = {
   entry : entries,
   output: {
     path    : __dirname + '/dist',
-    publicPath: 'http://localhost:8090/assets', //webpack-dev-server用のアウトプットディレクトリ
+    publicPath: 'http://localhost:8090/dist', //webpack-dev-server用のアウトプットディレクトリ
     filename: '[name].bundle.js',
     sourceMapFilename: '[file].map'
   },
