@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --progress --colors --port 8090",
+    "start": "webpack-dev-server --progress --colors --port 8090 --inline",
     "gen": "node template-generator.js"
   },
   "author": "",
