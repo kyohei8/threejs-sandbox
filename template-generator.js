@@ -27,6 +27,9 @@ let init = function(){
   camera.position.z = 1750;
   controls = new OrbitControls( camera, container );
 
+  var axisHelper = new THREE.AxisHelper(2);
+  scene.add(axisHelper);
+
   // -----------------------------------------------------------------
   // insert your creativity :D
   // -----------------------------------------------------------------
