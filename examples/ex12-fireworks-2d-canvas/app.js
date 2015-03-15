@@ -44,6 +44,8 @@ class Fireworks{
 
   createFirework(){
     Fireworks.createParticle();
+    Fireworks.createParticle();
+    Fireworks.createParticle();
   }
 
   /**
@@ -118,11 +120,11 @@ class Fireworks{
         // 爆発後の処理となる
         if(!particle.usePhysics){
 
-          //if(Math.random() < 0.8){
+          if(Math.random() < 0.8){
             FireworkExplosions.star(particle);
-          //}else{
-          //  FireworkExplosions.circle(particle);
-          //}
+          }else{
+            FireworkExplosions.circle(particle);
+          }
         }
       }
       particle.render(mainContext, fireworkCanvas);
