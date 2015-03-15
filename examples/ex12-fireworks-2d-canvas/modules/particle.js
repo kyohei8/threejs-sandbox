@@ -48,11 +48,13 @@ class Particle{
     this.lastPos.y = this.pos.y;
 
     if(this.usePhysics){
+      //爆発時
       this.vel.y += this.GRAVITY;
       this.pos.y += this.vel.y;
 
       this.alpha -= this.fade;
     }else{
+      //打ち上げ時
       let distance = (this.target.y - this.pos.y);
 
       this.pos.y += distance * (0.03 + this.easing);
@@ -60,7 +62,6 @@ class Particle{
     }
 
     this.pos.x += this.vel.x;
-
     return (this.alpha < 0.005);
 
   }

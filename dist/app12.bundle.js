@@ -62,8 +62,6 @@
 	
 	var Particle = __webpack_require__(2).Particle;
 	
-	//import {FireworkExplosions} from './modules/firework-explosions'
-	
 	var Library = __webpack_require__(3).Library;
 	
 	var Fireworks = (function () {
@@ -139,7 +137,7 @@
 	
 	      /**
 	       * 半透明の黒でcanvasでクリアする
-	       * 花火の軌跡を残すためにこうする
+	       * 花火の軌跡を残すためにalphaは半透明とする
 	       */
 	
 	      value: function clearContext() {
@@ -154,27 +152,27 @@
 	       */
 	
 	      value: function drawFireworks() {
-	        var a = particles.length;
-	        while (a--) {
-	          var firework = particles[a];
+	        var particlesIndex = particles.length;
+	        while (particlesIndex--) {
+	          var particle = particles[particlesIndex];
 	
 	          //trueなら爆発する
-	          if (firework.update()) {
+	          if (particle.update()) {
 	            //花火を削除して、パーティクルから爆発するようにする
-	            particles.slice(a, 0);
+	            particles.splice(particlesIndex, 1);
 	
-	            //もし物理演算を使わない場合、安全な爆発?になる
-	            if (!particles.usePhysics) {
+	            //もし物理演算を使わない場合
+	            // 爆発後の処理となる
+	            if (!particle.usePhysics) {
 	
-	              if (Math.random() < 0.8) {
-	                FireworkExplosions.star(firework);
-	              } else {
-	                FireworkExplosions.circle(firework);
-	              }
+	              //if(Math.random() < 0.8){
+	              FireworkExplosions.star(particle);
+	              //}else{
+	              //  FireworkExplosions.circle(particle);
+	              //}
 	            }
 	          }
-	
-	          firework.render(mainContext, fireworkCanvas);
+	          particle.render(mainContext, fireworkCanvas);
 	        }
 	      }
 	    },
@@ -207,6 +205,16 @@
 	    }
 	  }, {
 	    createParticle: {
+	
+	      /**
+	       * 花火を生成
+	       * @param pos
+	       * @param target
+	       * @param vel
+	       * @param color
+	       * @param usePhysics
+	       */
+	
 	      value: function createParticle() {
 	        var pos = arguments[0] === undefined ? {} : arguments[0];
 	        var target = arguments[1] === undefined ? {} : arguments[1];
@@ -214,10 +222,9 @@
 	        var color = arguments[3] === undefined ? "" : arguments[3];
 	        var usePhysics = arguments[4] === undefined ? false : arguments[4];
 	
-	        console.log(target);
 	        particles.push(new Particle( // position
 	        {
-	          x: pos.x || viewportWidth * 0.5,
+	          x: pos.x || Math.random() * viewportWidth,
 	          y: pos.y || viewportHeight + 10
 	        }, // target
 	        {
@@ -240,7 +247,7 @@
 	   */
 	  circle: function circle(firework) {
 	
-	    var count = 100;
+	    var count = 200;
 	    var angle = Math.PI * 2 / count;
 	    while (count--) {
 	
@@ -262,12 +269,14 @@
 	    // set up how many points the firework
 	    // should have as well as the velocity
 	    // of the exploded particles etc
+	    // 6 - 20
 	    var points = 6 + Math.round(Math.random() * 15);
+	    // 3 - 10
 	    var jump = 3 + Math.round(Math.random() * 7);
 	    var subdivisions = 10;
 	    var radius = 80;
+	    // 3 - 6
 	    var randomVelocity = -(Math.random() * 3 - 6);
-	
 	    var start = 0;
 	    var end = 0;
 	    var circle = Math.PI * 2;
@@ -279,7 +288,6 @@
 	      // and change values
 	      start = end;
 	      end = (end + jump) % points;
-	
 	      var sAngle = start / points * circle - adjustment;
 	      var eAngle = (start + jump) / points * circle - adjustment;
 	
@@ -320,8 +328,9 @@
 	    } while (end !== 0);
 	  }
 	};
-	
-	new Fireworks();
+	window.onload = function () {
+	  new Fireworks();
+	};
 	//http://creativejs.com/tutorials/creating-fireworks/
 	// をES6で書きなおした
 
@@ -395,11 +404,13 @@
 	        this.lastPos.y = this.pos.y;
 	
 	        if (this.usePhysics) {
+	          //爆発時
 	          this.vel.y += this.GRAVITY;
 	          this.pos.y += this.vel.y;
 	
 	          this.alpha -= this.fade;
 	        } else {
+	          //打ち上げ時
 	          var distance = this.target.y - this.pos.y;
 	
 	          this.pos.y += distance * (0.03 + this.easing);
@@ -407,7 +418,6 @@
 	        }
 	
 	        this.pos.x += this.vel.x;
-	
 	        return this.alpha < 0.005;
 	      }
 	    },

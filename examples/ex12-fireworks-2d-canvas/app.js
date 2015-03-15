@@ -10,7 +10,6 @@ let viewportWidth = window.innerWidth;
 let viewportHeight = window.innerHeight;
 
 import {Particle} from './modules/particle'
-//import {FireworkExplosions} from './modules/firework-explosions'
 import {Library} from './modules/library';
 
 class Fireworks{
@@ -47,11 +46,18 @@ class Fireworks{
     Fireworks.createParticle();
   }
 
+  /**
+   * 花火を生成
+   * @param pos
+   * @param target
+   * @param vel
+   * @param color
+   * @param usePhysics
+   */
   static createParticle(pos={}, target={}, vel={}, color='', usePhysics=false){
-    console.log(target);
     particles.push(new Particle(// position
       {
-        x: pos.x || viewportWidth * 0.5,
+        x: pos.x || Math.random() * viewportWidth,
         y: pos.y || viewportHeight + 10
       }, // target
       {
@@ -63,6 +69,7 @@ class Fireworks{
       }, color || Math.floor(Math.random() * 100) * 12, usePhysics)
     );
   }
+
 
   onWindowResize(){
     viewportWidth = window.innerWidth;
@@ -87,7 +94,7 @@ class Fireworks{
 
   /**
    * 半透明の黒でcanvasでクリアする
-   * 花火の軌跡を残すためにこうする
+   * 花火の軌跡を残すためにalphaは半透明とする
    */
   clearContext(){
     mainContext.fillStyle = 'rgba(0,0,0,0.2)';
@@ -98,29 +105,27 @@ class Fireworks{
    * 花火を描画する
    */
   drawFireworks(){
-    var a = particles.length;
-    while(a--){
-      var firework = particles[a];
+    var particlesIndex = particles.length;
+    while(particlesIndex--){
+      var particle = particles[particlesIndex];
 
       //trueなら爆発する
-      if(firework.update()){
+      if(particle.update()){
         //花火を削除して、パーティクルから爆発するようにする
-        particles.slice(a, 0);
+        particles.splice(particlesIndex, 1);
 
-        //もし物理演算を使わない場合、安全な爆発?になる
-        if(!particles.usePhysics){
+        //もし物理演算を使わない場合
+        // 爆発後の処理となる
+        if(!particle.usePhysics){
 
-          if(Math.random() < 0.8){
-            FireworkExplosions.star(firework);
-          }else{
-            FireworkExplosions.circle(firework);
-          }
-
+          //if(Math.random() < 0.8){
+            FireworkExplosions.star(particle);
+          //}else{
+          //  FireworkExplosions.circle(particle);
+          //}
         }
-
       }
-
-      firework.render(mainContext, fireworkCanvas);
+      particle.render(mainContext, fireworkCanvas);
     }
   }
 
@@ -155,7 +160,7 @@ let FireworkExplosions = {
    */
   circle: function(firework){
 
-    var count = 100;
+    var count = 200;
     var angle = (Math.PI * 2) / count;
     while(count--){
 
@@ -177,12 +182,14 @@ let FireworkExplosions = {
     // set up how many points the firework
     // should have as well as the velocity
     // of the exploded particles etc
+    // 6 - 20
     var points = 6 + Math.round(Math.random() * 15);
+    // 3 - 10
     var jump = 3 + Math.round(Math.random() * 7);
     var subdivisions = 10;
     var radius = 80;
+    // 3 - 6
     var randomVelocity = -(Math.random() * 3 - 6);
-
     var start = 0;
     var end = 0;
     var circle = Math.PI * 2;
@@ -194,7 +201,6 @@ let FireworkExplosions = {
       // and change values
       start = end;
       end = (end + jump) % points;
-
       var sAngle = (start / points) * circle - adjustment;
       var eAngle = ((start + jump) / points) * circle - adjustment;
 
@@ -236,8 +242,9 @@ let FireworkExplosions = {
 
   }
 };
-
-new Fireworks();
+window.onload = function(){
+  new Fireworks();
+};
 
 
 
