@@ -46,10 +46,10 @@
 
 	"use strict";
 	
-	__webpack_require__(6);
+	__webpack_require__(8);
 	var THREE = __webpack_require__(1);
-	var OrbitControls = __webpack_require__(4)(THREE);
-	var Stats = __webpack_require__(8);
+	var OrbitControls = __webpack_require__(6)(THREE);
+	var Stats = __webpack_require__(10);
 	
 	var container = undefined,
 	    stats = undefined;
@@ -185,7 +185,9 @@
 /***/ },
 /* 2 */,
 /* 3 */,
-/* 4 */
+/* 4 */,
+/* 5 */,
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function(THREE) {
@@ -871,17 +873,17 @@
 	}
 
 /***/ },
-/* 5 */,
-/* 6 */
+/* 7 */,
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(7);
+	var content = __webpack_require__(9);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(9)(content, {});
+	var update = __webpack_require__(11)(content, {});
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
@@ -895,14 +897,14 @@
 	}
 
 /***/ },
-/* 7 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(12)();
+	exports = module.exports = __webpack_require__(14)();
 	exports.push([module.id, "body {\n  margin: 0;\n}\ncanvas {\n  width: 100%;\n  height: 100%;\n}\n", ""]);
 
 /***/ },
-/* 8 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// stats.js - http://github.com/mrdoob/stats.js
@@ -914,7 +916,7 @@
 
 
 /***/ },
-/* 9 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -1110,9 +1112,9 @@
 
 
 /***/ },
-/* 10 */,
-/* 11 */,
-/* 12 */
+/* 12 */,
+/* 13 */,
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function() {
