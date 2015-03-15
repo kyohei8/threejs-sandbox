@@ -1,6 +1,6 @@
 # three.js practice
 
-three.jsの練習 (w/ ES6(babel) + webpack) :suspect:
+three.jsとかWebGLとかcanvasとかの練習 (w/ ES6(babel) + webpack) :suspect:
 
 ## install and run
 
