@@ -90,7 +90,6 @@ let htmlTemplate =
 <body>
 <div id="container"></div>
 
-<script src="/webpack-dev-server.js"></script>
 <script type="text/javascript" src="/dist/app${num}.bundle.js"></script>
 </body>
 </html>`;
