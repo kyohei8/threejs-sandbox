@@ -46,10 +46,10 @@
 
 	"use strict";
 	
-	__webpack_require__(8);
+	__webpack_require__(10);
 	var THREE = __webpack_require__(1);
 	//let OrbitControls = require('three-orbit-controls')(THREE);
-	var Stats = __webpack_require__(10);
+	var Stats = __webpack_require__(12);
 	
 	var TEXT = "ABCDE";
 	var container;
@@ -252,21 +252,23 @@
 /* 5 */,
 /* 6 */,
 /* 7 */,
-/* 8 */
+/* 8 */,
+/* 9 */,
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(9);
+	var content = __webpack_require__(11);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(11)(content, {});
+	var update = __webpack_require__(13)(content, {});
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
-		module.hot.accept("!!/Users/kyohei/work/threejs-sandbox/node_modules/css-loader/index.js!/Users/kyohei/work/threejs-sandbox/node_modules/autoprefixer-loader/index.js?browsers=last 1 version!/Users/kyohei/work/threejs-sandbox/node_modules/stylus-loader/index.js!/Users/kyohei/work/threejs-sandbox/examples/app.styl", function() {
-			var newContent = require("!!/Users/kyohei/work/threejs-sandbox/node_modules/css-loader/index.js!/Users/kyohei/work/threejs-sandbox/node_modules/autoprefixer-loader/index.js?browsers=last 1 version!/Users/kyohei/work/threejs-sandbox/node_modules/stylus-loader/index.js!/Users/kyohei/work/threejs-sandbox/examples/app.styl");
+		module.hot.accept("!!/Users/ktsukuda/work/threejs-sandbox/node_modules/css-loader/index.js!/Users/ktsukuda/work/threejs-sandbox/node_modules/autoprefixer-loader/index.js?browsers=last 1 version!/Users/ktsukuda/work/threejs-sandbox/node_modules/stylus-loader/index.js!/Users/ktsukuda/work/threejs-sandbox/examples/app.styl", function() {
+			var newContent = require("!!/Users/ktsukuda/work/threejs-sandbox/node_modules/css-loader/index.js!/Users/ktsukuda/work/threejs-sandbox/node_modules/autoprefixer-loader/index.js?browsers=last 1 version!/Users/ktsukuda/work/threejs-sandbox/node_modules/stylus-loader/index.js!/Users/ktsukuda/work/threejs-sandbox/examples/app.styl");
 			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 			update(newContent);
 		});
@@ -275,14 +277,14 @@
 	}
 
 /***/ },
-/* 9 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(14)();
+	exports = module.exports = __webpack_require__(16)();
 	exports.push([module.id, "body {\n  margin: 0;\n}\ncanvas {\n  width: 100%;\n  height: 100%;\n}\n", ""]);
 
 /***/ },
-/* 10 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// stats.js - http://github.com/mrdoob/stats.js
@@ -294,7 +296,7 @@
 
 
 /***/ },
-/* 11 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -490,9 +492,9 @@
 
 
 /***/ },
-/* 12 */,
-/* 13 */,
-/* 14 */
+/* 14 */,
+/* 15 */,
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function() {

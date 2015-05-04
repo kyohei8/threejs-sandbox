@@ -48,9 +48,9 @@
 	
 	//require('../app.styl');
 	
-	var Lib = __webpack_require__(4).Lib;
+	var Lib = __webpack_require__(6).Lib;
 	
-	var ShaderTypes = __webpack_require__(5).ShaderTypes;
+	var ShaderTypes = __webpack_require__(7).ShaderTypes;
 	
 	var canvasW = 512,
 	    canvasH = 512;
@@ -222,14 +222,13 @@
 /* 1 */,
 /* 2 */,
 /* 3 */,
-/* 4 */
+/* 4 */,
+/* 5 */,
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
 	var Lib = {
 	
 	  /**
@@ -340,16 +339,16 @@
 	
 	};
 	exports.Lib = Lib;
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 
 /***/ },
-/* 5 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
 	var ShaderTypes = {
 	  // フラグメントシェーダ
 	  // 3つのuniform変数を定義
@@ -363,6 +362,9 @@
 	  "Mandelbrot set": "\n    precision mediump float;\n    uniform float time;\n    uniform vec2 mouse;\n    uniform vec2 resolution;\n\n    //HSVカラーを生成\n    vec3 hsv(float h, float s, float v){\n      vec4 t = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);\n      vec3 p = abs(fract(vec3(h) + t.xyz) * 6.0 - vec3(t.w));\n      return v * mix(vec3(t.x), clamp(p - vec3(t.x), 0.0 , 1.0), s);\n    }\n\n    void main(void){\n      // マウス座標を正規化\n      vec2 m = vec2(mouse.x * 2.0 - 1.0, -mouse.y * 2.0 + 1.0);\n      // フラグメントを正規化\n      vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);\n\n      // マンデルブロ集合を定義\n      // カウンタ\n      int j = 0;\n      // 原点（少しずらしている）\n      vec2 x = p + vec2(-0.5, 0.0);\n      // マウス座標を使って拡大度?を変更\n      float y = 1.5 - mouse.x * 0.5;\n      // 漸化式 Z の初期値\n      vec2 z = vec2(0.0, 0.0);\n\n      //漸化式の繰り返し処理\n      float fnum = float(100);\n      for(int i=0; i < 100; i++){\n        j++;\n        // 2を超えると確実に発散する\n        if(length(z) > 2.0){\n          break;\n        }\n        //Zn+1 = Zn^2 + C\n        z = vec2(z.x * z.x - z.y * z.y , 2.0 * z.x * z.y) + x * y;\n      }\n\n      //時間の経過とともにhsvを出力\n      float h = mod(time * 20.0, 360.0) / 360.0;\n      vec3 rgb = hsv(h, 1.0, 1.0);\n\n      // 繰り返した回数を元に輝度を決める\n      float t = float(j) / fnum;\n\n      //最終的な色を出力\n      gl_FragColor = vec4(rgb * t, 1.0);\n    }\n  "
 	};
 	exports.ShaderTypes = ShaderTypes;
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 
 /***/ }
 /******/ ]);

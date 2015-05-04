@@ -48,46 +48,131 @@
 	
 	__webpack_require__(10);
 	var THREE = __webpack_require__(1);
-	var Stats = __webpack_require__(12);
 	var OrbitControls = __webpack_require__(8)(THREE);
+	var Stats = __webpack_require__(12);
 	
 	var container = undefined,
 	    stats = undefined;
 	var camera = undefined,
-	    scene = undefined,
 	    controls = undefined,
-	    renderer = undefined;
-	var logoObject3D = undefined,
-	    cube = undefined;
-	var logoMaterials = [],
-	    logoMaterial = undefined;
+	    scene = undefined,
+	    renderer = undefined,
+	    sceneEdge = undefined;
+	
+	var faceMaterial = undefined,
+	    shaderMaterial = undefined;
+	var mesh = undefined,
+	    meshEdge = undefined;
+	var globalLight = undefined;
+	var lightCameraVisibility = false;
+	var vs = "\nuniform bool edge;\nvarying vec3 vNormal;\n\nvoid main(void) {\n  vec3 pos = position;\n\n  if (edge) {\n    pos += normal * 0.04;\n  }\n  vNormal = normal;\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);\n}\n  ";
+	
+	var fs = "\n\n    precision mediump float;\n\n    uniform vec3 lightDirection;\n    uniform sampler2D texture;\n    uniform vec4 edgeColor;\n\n    varying vec3 vNormal;\n\n    void main(void) {\n        if (edgeColor.a > 0.0) {\n            gl_FragColor = edgeColor;\n        }\n        else {\n            float diffuse = clamp(dot(vNormal, lightDirection), 0.0, 1.0);\n            vec4 smpColor = texture2D(texture, vec2(diffuse, 0.0));\n            gl_FragColor = smpColor;\n        }\n    }\n  ";
 	
 	var init = function init() {
 	  container = document.getElementById("container");
 	
+	  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+	  camera.position.y = 100;
+	  camera.position.z = 10;
+	  camera.target = new THREE.Vector3(0, 150, 0);
+	
 	  scene = new THREE.Scene();
+	  sceneEdge = new THREE.Scene();
 	
-	  camera = new THREE.PerspectiveCamera(27, window.innerWidth / window.innerHeight, 1, 2000);
-	  camera.position.z = 280;
-	  camera.position.y = 20;
-	  //controls = new OrbitControls(camera, container);
-	  scene.add(camera);
+	  //var axisHelper = new THREE.AxisHelper(2);
+	  //scene.add(axisHelper);
 	
-	  logoObject3D = new THREE.Object3D();
-	  // 横長の四角を生成
-	  logoObject3D.add(generateCube(5392981, 2, 0.7));
-	  // 太くて透過の高いラインを重ねてgrowy感をだす
-	  logoObject3D.add(generateCube(5392981, 4, 0.3));
-	  logoObject3D.add(generateCube(5392981, 8, 0.1));
-	  logoObject3D.add(generateCube(5392981, 12, 0.05));
-	  logoObject3D.add(generateCube(5392981, 16, 0.05));
-	  makeLogoPlanes();
+	  // -----------------------------------------------------------------
+	  // 光源を設定
+	  globalLight = new THREE.DirectionalLight(15724543, 2);
+	  globalLight.position.set(-1, 1, 1).normalize();
+	  globalLight.castShadow = true;
+	  globalLight.shadowMapWidth = 2048;
+	  globalLight.shadowMapHeight = 2048;
 	
-	  scene.add(logoObject3D);
+	  var d = 1000;
+	  globalLight.shadowCameraLeft = -d;
+	  globalLight.shadowCameraRight = d;
+	  globalLight.shadowCameraTop = d;
+	  globalLight.shadowCameraBottom = -d;
+	  globalLight.shadowCameraNear = 1;
+	  globalLight.shadowCameraFar = 1000;
+	  globalLight.shadowCameraFov = 40;
+	
+	  globalLight.shadowCameraVisible = false;
+	
+	  globalLight.shadowBias = 0.0001;
+	  globalLight.shadowDarkness = 0.5;
+	
+	  scene.add(globalLight);
+	
+	  var light2 = new THREE.DirectionalLight(16773103, 2);
+	  light2.position.set(-1, -1, -1).normalize();
+	
+	  scene.add(light2);
+	
+	  var loader = new THREE.JSONLoader(true);
+	  loader.load("./model.json", function (geometry, materials) {
+	
+	    shaderMaterial = new THREE.ShaderMaterial({
+	      fragmentShader: fs,
+	      vertexShader: vs,
+	      attributes: {},
+	      uniforms: {
+	        edgeColor: {
+	          type: "v4",
+	          value: new THREE.Vector4(0, 0, 0, 0)
+	        },
+	        edge: {
+	          type: "i",
+	          value: true
+	        },
+	        lightDirection: {
+	          type: "v3",
+	          value: globalLight.position
+	        },
+	        texture: {
+	          type: "t",
+	          value: THREE.ImageUtils.loadTexture("./texture.png")
+	        }
+	      }
+	    });
+	
+	    shaderMaterial.morphTargets = true;
+	
+	    if (materials) {
+	      for (var i = 0, len = materials.length; i < len; i++) {
+	        materials[i].morphTargets = true;
+	      }
+	
+	      faceMaterial = new THREE.MeshFaceMaterial(materials);
+	    }
+	
+	    mesh = new THREE.SkinnedMesh(geometry, shaderMaterial);
+	    mesh.scale.set(100, 100, 100);
+	    mesh.position.y += 40;
+	    mesh.castShadow = true;
+	    mesh.receiveShadow = true;
+	
+	    meshEdge = mesh.clone();
+	
+	    scene.add(mesh);
+	    sceneEdge.add(meshEdge);
+	  });
+	
+	  // -----------------------------------------------------------------
 	
 	  renderer = new THREE.WebGLRenderer({ antialias: true });
+	  renderer.setClearColor(13421772, 1);
 	  renderer.setPixelRatio(window.devicePixelRatio);
 	  renderer.setSize(window.innerWidth, window.innerHeight);
+	
+	  renderer.sortObjects = false;
+	  renderer.shadowMapEnabled = true;
+	  renderer.shadowMapType = THREE.PCFShadowMap;
+	  renderer.autoClear = false;
+	
 	  container.appendChild(renderer.domElement);
 	
 	  // set stats
@@ -99,66 +184,6 @@
 	  window.addEventListener("resize", onWindowResize, false);
 	};
 	
-	// cubeを生成する
-	var generateCube = function generateCube(lineColor, lineWidth, lineOpacity) {
-	
-	  var material = new THREE.MeshBasicMaterial({
-	    opacity: 0,
-	    blending: THREE.AdditiveBlending,
-	    depthTest: false,
-	    transparent: true
-	  });
-	
-	  var cubegeom = new THREE.BoxGeometry(250, 58, 58, 1, 1, 1);
-	
-	  cube = new THREE.Mesh(cubegeom, material);
-	
-	  var egh = new THREE.EdgesHelper(cube, lineColor);
-	  egh.material.linewidth = lineWidth;
-	  egh.material.transparent = true;
-	  egh.material.opacity = lineOpacity;
-	  egh.material.blending = THREE.AdditiveBlending;
-	  egh.material.depthTest = false;
-	  console.log(egh.material.linecap);
-	  scene.add(egh);
-	
-	  return cube;
-	};
-	
-	// ロゴを生成
-	function makeLogoPlanes() {
-	  //平らなGeometryを生成
-	  var geometry = new THREE.PlaneGeometry(200, 200 * (115 / 460), 2, 1);
-	
-	  for (var i = 0; i < 20; i++) {
-	
-	    var material = new THREE.MeshBasicMaterial({
-	      map: THREE.ImageUtils.loadTexture("../img/CreativeJSwob2.png"),
-	      opacity: i == 0 ? 0.9 : i >= 3 ? 0.012 : 0.1,
-	      blending: THREE.AdditiveBlending, //黒い部分を消す
-	      depthTest: false,
-	      transparent: true
-	    });
-	
-	    if (i == 1) {
-	      geometry = new THREE.PlaneGeometry(200, 200 * (115 / 460), 1, 1);
-	    }
-	
-	    var logo = new THREE.Mesh(geometry, material);
-	    //最初の３枚は後ろ、残りは前に
-	    logo.position.z = i >= 3 ? (i - 2) * 5 : i * -10;
-	    logo.position.y = -2;
-	
-	    logoObject3D.add(logo);
-	    if (i > 0) {
-	      logoMaterials.push(material);
-	    } else {
-	      //最初のmaterial
-	      logoMaterial = material;
-	    }
-	  }
-	}
-	
 	var onWindowResize = function onWindowResize() {
 	
 	  camera.aspect = window.innerWidth / window.innerHeight;
@@ -166,15 +191,6 @@
 	
 	  renderer.setSize(window.innerWidth, window.innerHeight);
 	};
-	
-	var xMove = 50;
-	var yMove = 20;
-	var targetX = 0,
-	    targetY = 0;
-	var counterX = 0,
-	    counterY = 0;
-	var velX = 0,
-	    velY = 0;
 	
 	var animate = (function (_animate) {
 	  var _animateWrapper = function animate() {
@@ -187,44 +203,76 @@
 	
 	  return _animateWrapper;
 	})(function () {
-	  var diffX = undefined,
-	      diffY = undefined,
-	      speed = undefined;
-	  targetX = Math.sin(counterX) * xMove;
-	  targetY = Math.cos(counterY) * yMove;
 	
-	  counterX += 0.012;
-	  counterY += 0.01;
-	  speed = 0.01;
-	
-	  velX *= 0.8;
-	  velY *= 0.8;
-	
-	  diffX = (targetX - camera.position.x) * speed;
-	  diffY = (targetY - camera.position.y) * speed;
-	
-	  velX += diffX;
-	  velY += diffY;
-	
-	  camera.position.x += velX;
-	  camera.position.y += velY;
-	  camera.lookAt(scene.position);
+	  // insert your creativity :D
 	
 	  requestAnimationFrame(animate);
 	  stats.update();
 	  render();
 	});
 	
+	var radius = 800;
+	var theta = 0;
+	var duration = 1000;
+	var keyframes = 30,
+	    interpolation = duration / keyframes;
+	var lastKeyframe = 0,
+	    currentKeyframe = 0;
+	
+	var y = 0;
+	
 	var render = function render() {
 	
-	  renderer.render(scene, camera);
+	  camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta));
+	  camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta));
+	  camera.lookAt(scene.position);
+	
+	  //theta += 0.1;
+	
+	  if (mesh) {
+	    y += 0.3;
+	    mesh.position.y = 100 * Math.sin(THREE.Math.degToRad(y));
+	    meshEdge.position.y = 100 * Math.sin(THREE.Math.degToRad(y));
+	    // Alternate morph targets
+	    var time = Date.now() % duration;
+	    var keyframe = Math.floor(time / interpolation);
+	
+	    if (keyframe != currentKeyframe) {
+	      mesh.morphTargetInfluences[lastKeyframe] = 0;
+	      mesh.morphTargetInfluences[currentKeyframe] = 1;
+	      mesh.morphTargetInfluences[keyframe] = 0;
+	
+	      lastKeyframe = currentKeyframe;
+	      currentKeyframe = keyframe;
+	    }
+	
+	    mesh.morphTargetInfluences[keyframe] = time % interpolation / interpolation;
+	    mesh.morphTargetInfluences[lastKeyframe] = 1 - mesh.morphTargetInfluences[keyframe];
+	
+	    //cameraCube.rotation.copy(camera.rotation);
+	
+	    renderer.clear();
+	    //renderer.render(sceneCube, cameraCube);
+	
+	    //render front face.
+	    meshEdge.material.side = THREE.FrontSide;
+	    mesh.material.uniforms.edgeColor.value = new THREE.Vector4(0, 0, 0, 0);
+	    mesh.material.uniforms.edge.value = false;
+	
+	    renderer.render(scene, camera);
+	
+	    //render back face as edge.
+	    meshEdge.material.side = THREE.BackSide;
+	    meshEdge.material.uniforms.edgeColor.value = new THREE.Vector4(0, 0, 0, 1);
+	    meshEdge.material.uniforms.edge.value = true;
+	    renderer.render(sceneEdge, camera);
+	  }
+	
+	  //renderer.render(scene, camera);
 	};
 	
 	init();
 	animate();
-	/**
-	 * http://creativejs.com/ のロゴの 写経
-	 */
 
 /***/ },
 /* 1 */
@@ -1188,4 +1236,4 @@
 
 /***/ }
 /******/ ]);
-//# sourceMappingURL=app4.bundle.js.map
+//# sourceMappingURL=app15.bundle.js.map

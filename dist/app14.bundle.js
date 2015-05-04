@@ -48,42 +48,99 @@
 	
 	__webpack_require__(10);
 	var THREE = __webpack_require__(1);
-	var Stats = __webpack_require__(12);
 	var OrbitControls = __webpack_require__(8)(THREE);
+	var Stats = __webpack_require__(12);
+	
+	var vertexShader = __webpack_require__(4).vertexShader;
+	
+	var fragmentShader = __webpack_require__(5).fragmentShader;
 	
 	var container = undefined,
 	    stats = undefined;
 	var camera = undefined,
-	    scene = undefined,
 	    controls = undefined,
+	    scene = undefined,
 	    renderer = undefined;
-	var logoObject3D = undefined,
-	    cube = undefined;
-	var logoMaterials = [],
-	    logoMaterial = undefined;
+	var attributes = undefined,
+	    uniforms = undefined;
+	var sphere = undefined;
+	var noise = [];
 	
 	var init = function init() {
 	  container = document.getElementById("container");
 	
 	  scene = new THREE.Scene();
 	
-	  camera = new THREE.PerspectiveCamera(27, window.innerWidth / window.innerHeight, 1, 2000);
-	  camera.position.z = 280;
-	  camera.position.y = 20;
-	  //controls = new OrbitControls(camera, container);
-	  scene.add(camera);
+	  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 4000);
+	  camera.position.z = 250;
+	  controls = new OrbitControls(camera, container);
 	
-	  logoObject3D = new THREE.Object3D();
-	  // 横長の四角を生成
-	  logoObject3D.add(generateCube(5392981, 2, 0.7));
-	  // 太くて透過の高いラインを重ねてgrowy感をだす
-	  logoObject3D.add(generateCube(5392981, 4, 0.3));
-	  logoObject3D.add(generateCube(5392981, 8, 0.1));
-	  logoObject3D.add(generateCube(5392981, 12, 0.05));
-	  logoObject3D.add(generateCube(5392981, 16, 0.05));
-	  makeLogoPlanes();
+	  var axisHelper = new THREE.AxisHelper(2);
+	  scene.add(axisHelper);
 	
-	  scene.add(logoObject3D);
+	  // -----------------------------------------------------------------
+	  /**
+	   * attributeとは
+	   * @type {{displacement: {type: string, value: Array}}}
+	   */
+	  attributes = {
+	    displacement: {
+	      type: "f",
+	      value: []
+	    }
+	  };
+	
+	  /**
+	   * シェーダのuniform変数に値を渡すために定義
+	   */
+	  uniforms = {
+	    // 振動を定義(型はfloat)
+	    amplitude: {
+	      type: "f",
+	      value: 1
+	    },
+	    // 色(型はTHREE.Color)
+	    color: {
+	      type: "c",
+	      value: new THREE.Color(16720384)
+	    },
+	    // テクスチャ (型はTHREE.Texture)
+	    texture: {
+	      type: "t",
+	      value: THREE.ImageUtils.loadTexture("./water.jpg")
+	    }
+	  };
+	  uniforms.texture.value.warpS = uniforms.texture.value.wrapT = THREE.RepeatWrapping;
+	
+	  // shaderMaterial を生成
+	  var shaderMaterial = new THREE.ShaderMaterial({
+	    uniforms: uniforms,
+	    attributes: attributes,
+	    vertexShader: vertexShader,
+	    fragmentShader: fragmentShader
+	  });
+	
+	  var radius = 50,
+	      segments = 128,
+	      rings = 64;
+	  var geometry = new THREE.SphereGeometry(radius, segments, rings);
+	  geometry.dynamic = true;
+	
+	  sphere = new THREE.Mesh(geometry, shaderMaterial);
+	
+	  //頂点
+	  var vertices = sphere.geometry.vertices;
+	  var values = attributes.displacement.value;
+	
+	  //球の頂点に対しattributesとnoiseを設定
+	  for (var v = 0; v < vertices.length; v++) {
+	    values[v] = 0;
+	    noise[v] = Math.random() * 5;
+	  }
+	
+	  scene.add(sphere);
+	
+	  // -----------------------------------------------------------------
 	
 	  renderer = new THREE.WebGLRenderer({ antialias: true });
 	  renderer.setPixelRatio(window.devicePixelRatio);
@@ -99,66 +156,6 @@
 	  window.addEventListener("resize", onWindowResize, false);
 	};
 	
-	// cubeを生成する
-	var generateCube = function generateCube(lineColor, lineWidth, lineOpacity) {
-	
-	  var material = new THREE.MeshBasicMaterial({
-	    opacity: 0,
-	    blending: THREE.AdditiveBlending,
-	    depthTest: false,
-	    transparent: true
-	  });
-	
-	  var cubegeom = new THREE.BoxGeometry(250, 58, 58, 1, 1, 1);
-	
-	  cube = new THREE.Mesh(cubegeom, material);
-	
-	  var egh = new THREE.EdgesHelper(cube, lineColor);
-	  egh.material.linewidth = lineWidth;
-	  egh.material.transparent = true;
-	  egh.material.opacity = lineOpacity;
-	  egh.material.blending = THREE.AdditiveBlending;
-	  egh.material.depthTest = false;
-	  console.log(egh.material.linecap);
-	  scene.add(egh);
-	
-	  return cube;
-	};
-	
-	// ロゴを生成
-	function makeLogoPlanes() {
-	  //平らなGeometryを生成
-	  var geometry = new THREE.PlaneGeometry(200, 200 * (115 / 460), 2, 1);
-	
-	  for (var i = 0; i < 20; i++) {
-	
-	    var material = new THREE.MeshBasicMaterial({
-	      map: THREE.ImageUtils.loadTexture("../img/CreativeJSwob2.png"),
-	      opacity: i == 0 ? 0.9 : i >= 3 ? 0.012 : 0.1,
-	      blending: THREE.AdditiveBlending, //黒い部分を消す
-	      depthTest: false,
-	      transparent: true
-	    });
-	
-	    if (i == 1) {
-	      geometry = new THREE.PlaneGeometry(200, 200 * (115 / 460), 1, 1);
-	    }
-	
-	    var logo = new THREE.Mesh(geometry, material);
-	    //最初の３枚は後ろ、残りは前に
-	    logo.position.z = i >= 3 ? (i - 2) * 5 : i * -10;
-	    logo.position.y = -2;
-	
-	    logoObject3D.add(logo);
-	    if (i > 0) {
-	      logoMaterials.push(material);
-	    } else {
-	      //最初のmaterial
-	      logoMaterial = material;
-	    }
-	  }
-	}
-	
 	var onWindowResize = function onWindowResize() {
 	
 	  camera.aspect = window.innerWidth / window.innerHeight;
@@ -166,15 +163,6 @@
 	
 	  renderer.setSize(window.innerWidth, window.innerHeight);
 	};
-	
-	var xMove = 50;
-	var yMove = 20;
-	var targetX = 0,
-	    targetY = 0;
-	var counterX = 0,
-	    counterY = 0;
-	var velX = 0,
-	    velY = 0;
 	
 	var animate = (function (_animate) {
 	  var _animateWrapper = function animate() {
@@ -187,28 +175,6 @@
 	
 	  return _animateWrapper;
 	})(function () {
-	  var diffX = undefined,
-	      diffY = undefined,
-	      speed = undefined;
-	  targetX = Math.sin(counterX) * xMove;
-	  targetY = Math.cos(counterY) * yMove;
-	
-	  counterX += 0.012;
-	  counterY += 0.01;
-	  speed = 0.01;
-	
-	  velX *= 0.8;
-	  velY *= 0.8;
-	
-	  diffX = (targetX - camera.position.x) * speed;
-	  diffY = (targetY - camera.position.y) * speed;
-	
-	  velX += diffX;
-	  velY += diffY;
-	
-	  camera.position.x += velX;
-	  camera.position.y += velY;
-	  camera.lookAt(scene.position);
 	
 	  requestAnimationFrame(animate);
 	  stats.update();
@@ -217,14 +183,32 @@
 	
 	var render = function render() {
 	
+	  var time = Date.now() * 0.01;
+	  // 球体を回す
+	  var rotationSpeed = 0.01;
+	  sphere.rotation.y = sphere.rotation.z = rotationSpeed * time;
+	
+	  // テクスチャを変更する
+	  uniforms.amplitude.value = 2.5 * Math.sin(sphere.rotation.y * 0.125);
+	  // 色を変更する
+	  uniforms.color.value.offsetHSL(0.0005, 0, 0);
+	
+	  for (var i = 0; i < attributes.displacement.value.length; i++) {
+	    attributes.displacement.value[i] = Math.sin(0.1 * i + time);
+	
+	    noise[i] += 0.5 * (0.5 - Math.random());
+	    noise[i] = THREE.Math.clamp(noise[i], -5, 5);
+	
+	    attributes.displacement.value[i] += noise[i];
+	  }
+	
+	  attributes.displacement.needsUpdate = true;
+	
 	  renderer.render(scene, camera);
 	};
 	
 	init();
 	animate();
-	/**
-	 * http://creativejs.com/ のロゴの 写経
-	 */
 
 /***/ },
 /* 1 */
@@ -235,8 +219,31 @@
 /***/ },
 /* 2 */,
 /* 3 */,
-/* 4 */,
-/* 5 */,
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	var vertexShader = "\n// 振動\nuniform float amplitude;\n\nattribute float displacement;\n\nvarying vec3 vNormal;\nvarying vec2 vUv;\n\nvoid main(){\n  vNormal = normal;\n  vUv = (0.5 + amplitude) * uv + vec2( amplitude );\n\n  vec3 newPosition = position + amplitude * normal * vec3( displacement );\n  gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );\n}\n";
+	exports.vertexShader = vertexShader;
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	var fragmentShader = "\nvarying vec3 vNormal;\nvarying vec2 vUv;\n\nuniform vec3 color;\nuniform sampler2D texture;\n\nvoid main(){\n  vec3 light = vec3( 0.5, 0.2, 1.0 );\n  light = normalize( light );\n\n  float dProd = dot( vNormal, light ) * 0.5 + 0.5;\n\n  vec4 tcolor = texture2D( texture, vUv );\n  vec4 gray = vec4( vec3( tcolor.r * 0.3 + tcolor.g * 0.59 + tcolor.b * 0.11) , 1.0);\n\n  gl_FragColor = gray * vec4( vec3(dProd) * vec3(color), 1.0 );\n}\n";
+	
+	exports.fragmentShader = fragmentShader;
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+/***/ },
 /* 6 */,
 /* 7 */,
 /* 8 */
@@ -1188,4 +1195,4 @@
 
 /***/ }
 /******/ ]);
-//# sourceMappingURL=app4.bundle.js.map
+//# sourceMappingURL=app14.bundle.js.map
