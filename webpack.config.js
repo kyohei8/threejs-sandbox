@@ -25,7 +25,7 @@ module.exports = {
     loaders: [{
       test: /\.js$/,
       exclude: /node_modules/,
-      loader: 'babel-loader'
+      loader: 'babel-loader?optional=runtime'
     }, {
       test  : /\.styl$/,
       loader: 'style!css!autoprefixer?browsers=last 1 version!stylus'
